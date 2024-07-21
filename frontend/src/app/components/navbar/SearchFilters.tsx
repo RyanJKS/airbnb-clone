@@ -8,17 +8,17 @@ const SearchFilters = () => {
                 <div className="flex flex-row items-center justify-between">
                     <div className="w-[250px] h-[48px] lg:h-[64] px-8 flex flex-col justify-center rounded-full hover:bg-gray-200 cursor-pointer">
                         <p className="text-xs font-semibold">Where</p>
-                        <p className="text-sm">Add Location</p>
+                        <p className="text-sm">Search destinations</p>
                     </div>
 
                     <div className="h-[48px] lg:h-[64] px-8 flex flex-col justify-center rounded-full hover:bg-gray-200 cursor-pointer">
                         <p className="text-xs font-semibold">Check in</p>
-                        <p className="text-sm">Add date</p>
+                        <p className="text-sm">Add dates</p>
                     </div>
 
                     <div className="h-[48px] lg:h-[64] px-8 flex flex-col justify-center rounded-full hover:bg-gray-200 cursor-pointer">
                         <p className="text-xs font-semibold">Check Out</p>
-                        <p className="text-sm">Add date</p>
+                        <p className="text-sm">Add dates</p>
                     </div>
 
                     <div className="h-[48px] lg:h-[64] px-8 flex flex-col justify-center rounded-full hover:bg-gray-200 cursor-pointer">
