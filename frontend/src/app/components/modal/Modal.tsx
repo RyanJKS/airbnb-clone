@@ -23,7 +23,7 @@ const Modal: React.FC<ModelProps> = ({ title, content, isOpen, close }) => {
 
         setTimeout(() => {
             close();
-        }, 300)
+        }, 100)
     }, [close])
 
     if (!isOpen) {
@@ -38,7 +38,7 @@ const Modal: React.FC<ModelProps> = ({ title, content, isOpen, close }) => {
                         <header className="h-[60px] flex items-center p-6 rounded-t justify-center relative border-b">
                             <div
                                 className="p-3 absolute right-3 hover:bg-gray-300 rounded-full cursor-pointer"
-                                onClick={() => setShowModal(prev => !prev)}>
+                                onClick={handleClose}>
                                 <MdClose className="text-2xl" />
                             </div>
 

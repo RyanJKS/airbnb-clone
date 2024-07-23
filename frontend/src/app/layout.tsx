@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/navbar/Navbar";
-import Modal from "./components/modal/Modal";
+import LoginModal from "./components/modal/LoginModal";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,6 +24,7 @@ export default function RootLayout({
         <div className="pt-32">
           {children}
         </div>
+        <LoginModal />
       </body>
     </html>
   );
