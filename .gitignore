@@ -11,6 +11,10 @@ __pycache__/
 local_settings.py
 db.sqlite3
 media
+.env.dev
+
+# backend virtual env
+airbnb-clone-env/
 
 # Node.js
 node_modules/

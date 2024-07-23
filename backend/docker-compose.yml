@@ -1,0 +1,30 @@
+version: '3.8' # Docker version to use
+
+services:
+  # Django app
+  web:
+    build: ./backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend/:/usr/src/backend/    # state that the folder data should persist between docker and current files
+    ports:
+      - 8000:8000 # match container port to server port
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - db
+
+  # Add multiple services to connect to each other
+  db:
+    image: postgres:15
+    volumes: 
+        # local folder: container folder
+      -  postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgresuser
+      - POSTGRES_PASSWORD=postgrespassword
+      - POSTGRES_DB=airbnb_db
+
+volumes:
+  # Let docker create the volumn
+  postgres_data:
