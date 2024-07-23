@@ -4,11 +4,13 @@ import { CiMenuBurger } from "react-icons/ci";
 import { useState } from "react";
 import ProfileMenuLink from "./ProfileMenuLink";
 import useLoginModal from "@/app/hooks/useLoginModal";
+import useSignUpModal from "@/app/hooks/useSignUpModal";
 
-const Profile = () => {
+const ProfileMenu = () => {
 
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState<boolean>(true);
     const loginModal = useLoginModal();
+    const signUpModal = useSignUpModal();
 
     return (
         <div className="p-2 relative inline-block border rounded-full">
@@ -22,16 +24,20 @@ const Profile = () => {
                     <ProfileMenuLink
                         label="Log in"
                         onClick={() => {
-                            console.log("Login button clicked")
                             setIsOpen(false)
                             loginModal.open()
                         }} />
 
-                    <ProfileMenuLink label="Sign Up" onClick={() => console.log("Sign Up button clicked")} />
+                    <ProfileMenuLink
+                        label="Sign Up"
+                        onClick={() => {
+                            setIsOpen(false)
+                            signUpModal.open()
+                        }} />
                 </div>
             )}
         </div>
     )
 }
 
-export default Profile
+export default ProfileMenu

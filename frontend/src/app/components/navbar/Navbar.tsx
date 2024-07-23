@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import SearchFilters from "./SearchFilters";
-import Profile from "./Profile";
+import ProfileMenu from "./ProfileMenu";
 import AddPropertyButton from "./AddPropertyButton";
 
 
@@ -18,7 +18,7 @@ const Navbar = () => {
 
                     <div className="flex items-center space-x-6">
                         <AddPropertyButton />
-                        <Profile />
+                        <ProfileMenu />
                     </div>
                 </div>
             </div>
