@@ -15,7 +15,7 @@ AUTH_USER_MODEL = 'useraccount.User' # Redefined auth model
 
 SITE_ID = 1
 
-WEBSITE_URL = 'http://localhost:8000/'
+WEBSITE_URL = 'http://localhost:8000'
 
 SIMPLE_JWT ={
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
@@ -35,10 +35,10 @@ ACCOUNT_EMAIL_VERIFICATION = None
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': {
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication', # Enforces Authentication
     },
     'DEFAULT_PERMISSION_CLASSES':{
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.IsAuthenticated',  # Enforces Authentication
     }
 }
 
@@ -159,6 +159,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "static/"
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media' # BASE_DIR points to backend folder, add this media folder since this is where the upload/profile_img will be uploaded
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
