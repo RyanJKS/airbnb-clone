@@ -40,7 +40,7 @@ const SignUpModal = () => {
         resolver: yupResolver(schema),
     });
 
-    const onSubmit: SubmitHandler<IFormInputs> = async (data) => {
+    const submitSignUp: SubmitHandler<IFormInputs> = async (data) => {
         try {
             const response = await apiService.post('/api/auth/register/', data);
 
@@ -63,7 +63,7 @@ const SignUpModal = () => {
         }
     };
 
-    const handleButtonClick = handleSubmit(onSubmit);
+    const handleButtonClick = handleSubmit(submitSignUp);
 
     const content = (
         <form className="space-y-4">

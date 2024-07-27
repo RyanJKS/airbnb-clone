@@ -8,7 +8,7 @@ import useSignUpModal from "@/app/hooks/useSignUpModal";
 
 const ProfileMenu = () => {
 
-    const [isOpen, setIsOpen] = useState<boolean>(true);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
     const loginModal = useLoginModal();
     const signUpModal = useSignUpModal();
 
