@@ -34,12 +34,12 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = None
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication', # Enforces Authentication
-    },
-    'DEFAULT_PERMISSION_CLASSES':{
+    ],
+    'DEFAULT_PERMISSION_CLASSES':[
         'rest_framework.permissions.IsAuthenticated',  # Enforces Authentication
-    }
+    ]
 }
 
 CORS_ALLOWED_ORIGIN = [
@@ -47,11 +47,12 @@ CORS_ALLOWED_ORIGIN = [
     'http://127.0.0.1:3000'
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True
+
 REST_AUTH = {
     "USE_JWT": True,
     "JWT_AUTH_HTTPONLY": False
 }
-
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -67,6 +68,7 @@ INSTALLED_APPS = [
     
     "allauth",
     "allauth.account",
+
     "dj_rest_auth",
     "dj_rest_auth.registration",
     
@@ -76,16 +78,16 @@ INSTALLED_APPS = [
     "property",
 ]
 
+
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
-    "allauth.account.middleware.AccountMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = "backend.urls"
