@@ -1,11 +1,11 @@
 "use client";
 
-interface ProfileMenuLinkProps {
+interface MenuItemProps {
     label: string;
     onClick: () => void;
 }
 
-const ProfileMenuLink: React.FC<ProfileMenuLinkProps> = ({ label, onClick }) => {
+const MenuItem: React.FC<MenuItemProps> = ({ label, onClick }) => {
     return (
         <div
             className="px-5 py-4 hover:bg-gray-100 transition cursor-pointer"
@@ -13,7 +13,7 @@ const ProfileMenuLink: React.FC<ProfileMenuLinkProps> = ({ label, onClick }) => 
         >
             {label}
         </div>
-    )
+    );
 }
 
-export default ProfileMenuLink
+export default MenuItem;

@@ -17,7 +17,7 @@ const PropertyList = () => {
     const [properties, setProperties] = useState<PropertyType[]>([])
 
     const getProperties = async () => {
-        const tempProperties = await apiService.get('/api/properties');
+        const tempProperties = await apiService.get('/api/properties/');
         setProperties(tempProperties.data)
     }
 

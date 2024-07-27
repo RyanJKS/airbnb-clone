@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "./components/navbar/Navbar";
 import LoginModal from "./components/modal/LoginModal";
 import SignUpModal from "./components/modal/SignUpModal";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,12 +22,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Navbar />
-        <div className="pt-32">
-          {children}
-        </div>
-        <LoginModal />
-        <SignUpModal />
+        <AuthProvider>
+          <Navbar />
+          <div className="pt-32">
+            {children}
+          </div>
+          <LoginModal />
+          <SignUpModal />
+        </AuthProvider>
       </body>
     </html>
   );
