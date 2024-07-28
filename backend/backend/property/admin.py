@@ -1,6 +1,14 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Property
+from .models import Property, PropertyImage
 
-admin.site.register(Property) # Adds the Property section on admin site for django app
+class PropertyImageInline(admin.TabularInline):
+    model = PropertyImage
+    extra = 1
+
+class PropertyAdmin(admin.ModelAdmin):
+    inlines = [PropertyImageInline]
+
+admin.site.register(Property, PropertyAdmin) # Adds the Property section on admin site for django app
+admin.site.register(PropertyImage)

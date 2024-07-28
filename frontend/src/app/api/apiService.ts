@@ -11,7 +11,7 @@ let axiosInstance = axios.create({
 });
 
 // Function to set the Authorization header
-const setAuthorizationHeader = async (config) => {
+const setAuthorizationHeader = async (config: any) => {
     const token = await getAccessToken();
     if (token) {
         config.headers['Authorization'] = `Bearer ${token}`;
@@ -58,6 +58,21 @@ const apiService = {
             return response.data;
         } catch (error) {
             console.error('Error in POST request:', error);
+            throw error;
+        }
+    },
+
+    postWithFiles: async function (url: string, data: any): Promise<any> {
+        try {
+            const response = await axiosInstance.post(url, data, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            console.log("Response: ", response);
+            return response.data;
+        } catch (error) {
+            console.error('Error in POST request with files:', error);
             throw error;
         }
     },

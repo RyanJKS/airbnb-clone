@@ -1,10 +1,15 @@
 # Uses the serializer to make the data available to front end
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.decorators import api_view, authentication_classes, permission_classes, parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework import status
 from .models import Property
 from .serializers import PropertyListSerializer
 from django.http import JsonResponse
 
-from .forms import PropertyForm
+from .serializers import PropertySerializer, PropertyListSerializer
+from .models import PropertyImage
+
+import os
 
 @api_view(['GET'])
 @authentication_classes([]) # Ability added in settings.py for rest_framework section
@@ -15,17 +20,33 @@ def properties_list(request):
     
     return JsonResponse({'data': serializer.data})
 
-@api_view(['POST', 'FILES'])
-def add_property(request):
-    form = PropertyForm(request.POST, request.FILES)
+
+@api_view(['POST'])
+@parser_classes([MultiPartParser, FormParser])
+def create_property(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"detail": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
     
-    if form.is_valid():
-        property = form.save(commit=False)
-        property.host = request.user
-        property.save()
-        
-        return JsonResponse({'success': True})
-    
+    serializer = PropertySerializer(data=request.data)
+    if serializer.is_valid():
+        property_instance = serializer.save(host=request.user)
+
+        # Handle multiple images
+        files = request.FILES.getlist('image_files')
+        for file in files:
+            try:
+                PropertyImage.objects.create(property=property_instance, image=file)
+            except Exception as e:
+                print(f"Error saving image file {file.name}: {e}")
+                # Check if the file exists
+                try:
+                    temp_path = file.temporary_file_path()
+                except AttributeError:
+                    temp_path = None
+                if temp_path and not os.path.exists(temp_path):
+                    print(f"File {file.name} does not exist at {temp_path}")
+                return JsonResponse({"detail": f"Error saving image file {file.name}: {e}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        return JsonResponse({'success': True}, status=status.HTTP_201_CREATED)
     else:
-        print({'error', form.errors, form.non_field_errors})
-        return JsonResponse({'error':form.errors.as_json()}, status=400)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

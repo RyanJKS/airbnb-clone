@@ -41,7 +41,7 @@ const validationSchema = yup.object().shape({
         .integer('Must be an integer'),
     country: yup.string().required('Country is required'),
     country_code: yup.string().required('Country code is required').max(5, 'Country code must be 5 characters or less'),
-    image: yup.array().min(1, 'At least one image is required').required('Images are required')
+    image_files: yup.array().min(1, 'At least one image is required').required('Images are required')
 });
 
 interface IFormInputs {
@@ -54,7 +54,7 @@ interface IFormInputs {
     guests: number;
     country: string;
     country_code: string;
-    image: File[];
+    image_files: File[];
 }
 
 const PropertyDetailPage: React.FC = () => {
@@ -76,24 +76,34 @@ const PropertyDetailPage: React.FC = () => {
             url: URL.createObjectURL(file)
         }));
         setImagePreviews(prev => [...prev, ...newImagePreviews]);
-        setValue('image', [...imagePreviews, ...newImagePreviews].map(img => img.file));
+        setValue('image_files', [...imagePreviews, ...newImagePreviews].map(img => img.file));
     };
 
     const removeImage = (url: string) => {
         const updatedImagePreviews = imagePreviews.filter(image => image.url !== url);
         setImagePreviews(updatedImagePreviews);
-        setValue('image', updatedImagePreviews.map(img => img.file));
+        setValue('image_files', updatedImagePreviews.map(img => img.file));
     };
 
     const submitProperty: SubmitHandler<IFormInputs> = async (data) => {
         try {
-            const response = await apiService.post('/api/properties/create/', data);
+            const formData = new FormData();
+            formData.append('category', data.category);
+            formData.append('title', data.title);
+            formData.append('description', data.description);
+            formData.append('price_per_night', data.price_per_night.toString());
+            formData.append('bedrooms', data.bedrooms.toString());
+            formData.append('bathrooms', data.bathrooms.toString());
+            formData.append('guests', data.guests.toString());
+            formData.append('country', data.country);
+            formData.append('country_code', data.country_code);
+            data.image_files.forEach((file) => {
+                formData.append('image_files', file);
+            });
+
+            const response = await apiService.postWithFiles('/api/properties/create/', formData);
 
             if (response.success) {
-                // handleLogin(response.user.pk, response.access, response.refresh)
-                // await refreshUserId(); // Update userId in context using getUserId
-                // loginModal.close();
-                console.log("hi")
                 router.push('/');
             } else {
                 const tempErrors: string[] = Object.values(response.data).flat() as string[];
@@ -104,8 +114,7 @@ const PropertyDetailPage: React.FC = () => {
                 const tempErrors: string[] = Object.values(error.response.data).flat() as string[];
                 setErrorMessage(tempErrors);
             } else {
-                setErrorMessage([error.message]);
-
+                setErrorMessage(["Error creating new property"]);
             }
         }
     };
@@ -127,7 +136,7 @@ const PropertyDetailPage: React.FC = () => {
                     handleImageChange={handleImageChange}
                     imagePreviews={imagePreviews}
                     removeImage={removeImage}
-                    error={errors.image?.message}
+                    error={errors.image_files?.message}
                 />
                 <TextInput
                     label="Title"

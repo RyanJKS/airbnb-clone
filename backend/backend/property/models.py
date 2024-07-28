@@ -15,10 +15,13 @@ class Property(models.Model):
     country = models.CharField(max_length=255)
     country_code = models.CharField(max_length=10)
     category = models.CharField(max_length=255)
-    image = models.ImageField(upload_to='uploads/properties')
     host = models.ForeignKey(User, related_name='properties', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     
-    def image_url(self):
-        return f'{settings.WEBSITE_URL}{self.image.url}'
+    def image_urls(self):
+        return [f'{settings.WEBSITE_URL}{image.image.url}' for image in self.images.all()]
+
+class PropertyImage(models.Model):
+    property = models.ForeignKey(Property, related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='uploads/properties')
         
