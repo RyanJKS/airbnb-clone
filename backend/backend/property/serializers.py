@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 # Takes the data from models.py to turn it into JSON readable data for frontend
-from .models import Property, PropertyImage
+from .models import Property, PropertyImage, Reservation
 from useraccount.serializers import UserDetailSerializer
 
 # List property for home page with 1 image
@@ -72,3 +72,12 @@ class PropertiesDetailSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         images = obj.images.all()
         return [request.build_absolute_uri(image.image.url) for image in images] if request else [image.image.url for image in images]
+
+class ReservationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reservation
+        fields = ['start_date', 'end_date', 'number_of_nights', 'total_price', 'guests']
+
+    def validate(self, data):
+        # Add custom validation if necessary
+        return data

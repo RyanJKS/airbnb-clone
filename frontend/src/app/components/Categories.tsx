@@ -35,7 +35,7 @@ const Categories: React.FC<CategoriesProps> = ({ selectedCategory, onSelectCateg
         <div className="relative flex items-center">
             <button
                 onClick={() => handleScroll('left')}
-                className="absolute left-0 p-2 z-10 bg-white border rounded-full shadow-md"
+                className="absolute left-0 p-2 z-8 bg-white border rounded-full shadow-md"
             >
                 &lt;
             </button>
@@ -60,7 +60,7 @@ const Categories: React.FC<CategoriesProps> = ({ selectedCategory, onSelectCateg
             </div>
             <button
                 onClick={() => handleScroll('right')}
-                className="absolute right-0 p-2 z-10 bg-white border rounded-full shadow-md"
+                className="absolute right-0 p-2 z-8 bg-white border rounded-full shadow-md"
             >
                 &gt;
             </button>

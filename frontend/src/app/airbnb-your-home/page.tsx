@@ -57,7 +57,7 @@ interface IFormInputs {
     image_files: File[];
 }
 
-const PropertyDetailPage: React.FC = () => {
+const AirbnbYourHomePage: React.FC = () => {
     const { register, handleSubmit, setValue, formState: { errors } } = useForm({
         resolver: yupResolver(validationSchema)
     });
@@ -211,4 +211,4 @@ const PropertyDetailPage: React.FC = () => {
     );
 };
 
-export default PropertyDetailPage;
+export default AirbnbYourHomePage;
