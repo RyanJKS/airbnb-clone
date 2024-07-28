@@ -11,7 +11,7 @@ class Property(models.Model):
     price_per_night = models.IntegerField()
     bedrooms = models.IntegerField()
     bathrooms = models.IntegerField()
-    no_of_guests = models.IntegerField()
+    guests = models.IntegerField()
     country = models.CharField(max_length=255)
     country_code = models.CharField(max_length=10)
     category = models.CharField(max_length=255)

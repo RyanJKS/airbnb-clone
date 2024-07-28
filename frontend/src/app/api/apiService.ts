@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { getAccessToken } from '../lib/actions';
 
-// Create an axios instance with default settings
-const axiosInstance = axios.create({
+
+let axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_HOST,
     headers: {
         'Accept': 'application/json',
@@ -9,8 +10,20 @@ const axiosInstance = axios.create({
     },
 });
 
-// Request interceptor for logging
-axiosInstance.interceptors.request.use(request => {
+// Function to set the Authorization header
+const setAuthorizationHeader = async (config) => {
+    const token = await getAccessToken();
+    if (token) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+    } else {
+        delete config.headers['Authorization'];
+    }
+    return config;
+};
+
+// Request interceptor for logging and setting the Authorization header
+axiosInstance.interceptors.request.use(async (request) => {
+    await setAuthorizationHeader(request);
     console.log('Starting Request', request);
     return request;
 }, error => {
