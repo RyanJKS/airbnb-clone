@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 # Takes the data from models.py to turn it into JSON readable data for frontend
 from .models import Property, PropertyImage
+from useraccount.serializers import UserDetailSerializer
 
 class PropertyListSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
@@ -19,14 +20,15 @@ class PropertyImageSerializer(serializers.ModelSerializer):
         fields = ['image']
 
 class PropertySerializer(serializers.ModelSerializer):
-    images = PropertyImageSerializer(many=True, read_only=True)
+    host = UserDetailSerializer(read_only=True,many=False)
+    images = PropertyImageSerializer(read_only=True, many=True)
     image_files = serializers.ListField(
         child=serializers.ImageField(write_only=True), write_only=True
     )
 
     class Meta:
         model = Property
-        fields = ['id', 'title', 'description', 'price_per_night', 'bedrooms', 'bathrooms', 'guests', 'country', 'country_code', 'category', 'created_at', 'images', 'image_files']
+        fields = ['id', 'title', 'description', 'price_per_night', 'bedrooms', 'bathrooms', 'guests', 'country', 'country_code', 'category', 'created_at', 'host', 'images', 'image_files']
 
     def create(self, validated_data):
         image_files = validated_data.pop('image_files')
