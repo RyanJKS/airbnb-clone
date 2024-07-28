@@ -4,6 +4,7 @@ from rest_framework import serializers
 from .models import Property, PropertyImage
 from useraccount.serializers import UserDetailSerializer
 
+# List property for home page with 1 image
 class PropertyListSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
 
@@ -14,10 +15,17 @@ class PropertyListSerializer(serializers.ModelSerializer):
     def get_image_url(self, obj):
         return obj.image_urls()[0] if obj.image_urls() else None
         
+# Create a new property
 class PropertyImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = PropertyImage
-        fields = ['image']
+        fields = ['image_url']
+        
+    def get_image_url(self, obj):
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(obj.image.url)
+        return obj.image.url
 
 class PropertySerializer(serializers.ModelSerializer):
     host = UserDetailSerializer(read_only=True,many=False)
@@ -40,3 +48,27 @@ class PropertySerializer(serializers.ModelSerializer):
                 print(f"Error saving image: {e}")
                 raise serializers.ValidationError(f"Error saving image: {e}")
         return property_instance
+    
+# List details about specific property
+class PropertiesDetailSerializer(serializers.ModelSerializer):
+    host = UserDetailSerializer(read_only=True, many=False)
+    images = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Property
+        fields = (
+            'id',
+            'title',
+            'description',
+            'price_per_night',
+            'bedrooms',
+            'bathrooms',
+            'guests',
+            'host',
+            'images'
+        )
+    
+    def get_images(self, obj):
+        request = self.context.get('request')
+        images = obj.images.all()
+        return [request.build_absolute_uri(image.image.url) for image in images] if request else [image.image.url for image in images]

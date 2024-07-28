@@ -161,8 +161,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "static/"
-MEDIA_URL = 'media/'
-MEDIA_ROOT = BASE_DIR / 'media' # BASE_DIR points to backend folder, add this media folder since this is where the upload/profile_img will be uploaded
+MEDIA_URL = '/media/'
+MEDIA_ROOT =  os.path.join(BASE_DIR, 'media') # BASE_DIR points to backend folder, add this media folder since this is where the upload/profile_img will be uploaded
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

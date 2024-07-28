@@ -6,11 +6,13 @@ from .models import Property
 from .serializers import PropertyListSerializer
 from django.http import JsonResponse
 
-from .serializers import PropertySerializer, PropertyListSerializer
+from .serializers import PropertySerializer, PropertyListSerializer, PropertiesDetailSerializer
 from .models import PropertyImage
 
 import os
 
+
+# Get all property for home page
 @api_view(['GET'])
 @authentication_classes([]) # Ability added in settings.py for rest_framework section
 @permission_classes([]) # Ability added in settings.py for rest_Framework section
@@ -20,7 +22,7 @@ def properties_list(request):
     
     return JsonResponse({'data': serializer.data})
 
-
+# Create new property
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
 def create_property(request):
@@ -35,18 +37,35 @@ def create_property(request):
         files = request.FILES.getlist('image_files')
         for file in files:
             try:
+                # Save the image to the PropertyImage model
                 PropertyImage.objects.create(property=property_instance, image=file)
             except Exception as e:
                 print(f"Error saving image file {file.name}: {e}")
-                # Check if the file exists
+                
+                # Check for temporary file path and log if file doesn't exist
                 try:
                     temp_path = file.temporary_file_path()
+                    if not os.path.exists(temp_path):
+                        print(f"File {file.name} does not exist at {temp_path}")
                 except AttributeError:
-                    temp_path = None
-                if temp_path and not os.path.exists(temp_path):
-                    print(f"File {file.name} does not exist at {temp_path}")
+                    # Handle in-memory files
+                    print(f"InMemoryUploadedFile detected for {file.name}")
+                
                 return JsonResponse({"detail": f"Error saving image file {file.name}: {e}"}, status=status.HTTP_400_BAD_REQUEST)
 
         return JsonResponse({'success': True}, status=status.HTTP_201_CREATED)
     else:
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+# Get detail for a property
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def property_detail(request, pk):
+    try:
+        property_instance = Property.objects.get(pk=pk)
+    except Property.DoesNotExist:
+        return JsonResponse({'error': 'Property not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = PropertiesDetailSerializer(property_instance, context={'request': request})
+    return JsonResponse(serializer.data, status=status.HTTP_200_OK)
