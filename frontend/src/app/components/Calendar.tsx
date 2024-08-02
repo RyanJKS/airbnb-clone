@@ -4,13 +4,13 @@ import { DateRange, Range, RangeKeyDict } from 'react-date-range';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 
-interface CalenderProps {
+interface CalendarProps {
     value: Range,
     onChange: (value: RangeKeyDict) => void;
     bookedDates?: Date[];
 }
 
-const Calender: React.FC<CalenderProps> = ({
+const Calendar: React.FC<CalendarProps> = ({
     value,
     onChange,
     bookedDates
@@ -32,4 +32,4 @@ const Calender: React.FC<CalenderProps> = ({
     );
 }
 
-export default Calender;
+export default Calendar;
