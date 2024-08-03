@@ -81,3 +81,10 @@ class ReservationSerializer(serializers.ModelSerializer):
     def validate(self, data):
         # Add custom validation if necessary
         return data
+    
+
+class ReservationListSerializer(serializers.ModelSerializer):
+    property = PropertyListSerializer(read_only=True, many=False)
+    class Meta:
+        model = Reservation
+        fields = ['id', 'start_date', 'end_date', 'number_of_nights', 'total_price', 'property']

@@ -7,7 +7,7 @@ from .serializers import PropertyListSerializer
 from django.http import JsonResponse
 from django.db import transaction
 
-from .serializers import PropertySerializer, PropertyListSerializer, PropertiesDetailSerializer, ReservationSerializer
+from .serializers import PropertySerializer, PropertyListSerializer, PropertiesDetailSerializer, ReservationSerializer, ReservationListSerializer
 from .models import PropertyImage, Reservation
 
 import os
@@ -64,7 +64,7 @@ def create_property(request):
 @permission_classes([])
 def property_detail(request, pk):
     try:
-        property_instance = Property.objects.get(pk=pk)
+        property_instance = Property.objects.get(pk=pk) # pk received from url params (id for property)
     except Property.DoesNotExist:
         return JsonResponse({'error': 'Property not found'}, status=status.HTTP_404_NOT_FOUND)
     
@@ -98,3 +98,18 @@ def create_reservation(request, pk):
             return JsonResponse({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+# Get reservations for a property
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([])
+def property_reservations(request, pk):
+    try:
+        property = Property.objects.get(pk=pk)
+        reservations = property.reservations.all()
+    except Property.DoesNotExist:
+        return JsonResponse({'error': 'Property not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = ReservationListSerializer(reservations, many=True)
+    return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)

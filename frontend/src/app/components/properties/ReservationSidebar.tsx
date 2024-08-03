@@ -1,17 +1,19 @@
 'use client';
-import { useState, useCallback, useMemo } from "react";
-import { useAuth } from "@/app/contexts/AuthContext";
-import { useRouter } from "next/navigation";
-import useLoginModal from "@/app/hooks/useLoginModal";
+import { useState, useCallback } from 'react';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import useLoginModal from '@/app/hooks/useLoginModal';
 import { Range } from 'react-date-range';
-import { differenceInDays, format } from 'date-fns';
-import apiService from "@/app/api/apiService";
-import Calendar from "../Calendar";
+import { format } from 'date-fns';
+import apiService from '@/app/api/apiService';
+import Calendar from '../Calendar';
+import useGetReservations from '@/app/hooks/useGetReservations';
+import useBookingCalculation from '@/app/hooks/useBookingCalculation';
 
 const initialDateRange: Range = {
     startDate: new Date(),
     endDate: new Date(),
-    key: 'selection'
+    key: 'selection',
 };
 
 export type Property = {
@@ -22,7 +24,7 @@ export type Property = {
 
 interface ReservationSidebarProps {
     property: Property;
-}
+};
 
 const ReservationSidebar: React.FC<ReservationSidebarProps> = ({ property }) => {
     const { userId } = useAuth();
@@ -31,6 +33,9 @@ const ReservationSidebar: React.FC<ReservationSidebarProps> = ({ property }) => 
 
     const [dateRange, setDateRange] = useState<Range>(initialDateRange);
     const [guests, setGuests] = useState<string>('1');
+
+    const bookedDates = useGetReservations(property.id);
+    const { fee, nights, totalPrice } = useBookingCalculation(property, dateRange);
 
     const handleDateRangeChange = useCallback((selection: any) => {
         const newStartDate = new Date(selection.startDate);
@@ -43,56 +48,44 @@ const ReservationSidebar: React.FC<ReservationSidebarProps> = ({ property }) => 
         setDateRange({
             ...dateRange,
             startDate: newStartDate,
-            endDate: newEndDate
+            endDate: newEndDate,
         });
     }, [dateRange]);
 
-    const calculateFeeAndTotalPrice = useCallback(() => {
+    const bookReservation = async () => {
+        if (!userId) {
+            loginModal.open();
+            return;
+        }
+
         const startDate = dateRange.startDate || new Date();
         const endDate = dateRange.endDate || new Date();
-        const dayCount = differenceInDays(endDate, startDate);
-        const nights = dayCount || 1;
-        const fee = parseFloat((((nights * property.price_per_night) / 100) * 5).toFixed(2)); // 5% fee from total price
-        const totalPrice = (nights * property.price_per_night) + fee;
 
-        return { nights, fee, totalPrice };
-    }, [dateRange]);
+        const bookingData = new FormData();
+        bookingData.append('guests', guests);
+        bookingData.append('start_date', format(startDate, 'yyyy-MM-dd'));
+        bookingData.append('end_date', format(endDate, 'yyyy-MM-dd'));
+        bookingData.append('number_of_nights', nights.toString());
+        bookingData.append('total_price', totalPrice.toString());
 
-    const { fee, nights, totalPrice } = useMemo(calculateFeeAndTotalPrice, [calculateFeeAndTotalPrice]);
+        try {
+            const response = await apiService.post(`/api/properties/${property.id}/book/`, bookingData);
 
-    const bookReservation = async () => {
-        if (userId) {
-            try {
-                const startDate = dateRange.startDate || new Date();
-                const endDate = dateRange.endDate || new Date();
-
-                const formData = new FormData();
-                formData.append('guests', guests);
-                formData.append('start_date', format(startDate, 'yyyy-MM-dd'));
-                formData.append('end_date', format(endDate, 'yyyy-MM-dd'));
-                formData.append('number_of_nights', nights.toString());
-                formData.append('total_price', totalPrice.toString());
-
-                const response = await apiService.post(`/api/properties/${property.id}/book/`, formData);
-
-                if (response.success) {
-                    console.log('Booking successful');
-                    router.push('/reservations');
-                } else {
-                    console.error('Booking failed:', response.error);
-                }
-            } catch (error) {
-                console.error('Failed to make a reservation:', error);
+            if (response.success) {
+                console.log('Booking successful');
+                router.push('/reservations');
+            } else {
+                console.error('Booking failed:', response.error);
             }
-        } else {
-            loginModal.open();
+        } catch (error) {
+            console.error('Failed to make a reservation:', error);
         }
     };
 
     return (
         <aside className="mt-6 p-6 col-span-2 rounded-xl border border-gray-300 shadow-xl">
             <h2 className="mb-5 text-2xl">£{property.price_per_night} per night</h2>
-            <Calendar value={dateRange} onChange={(value) => handleDateRangeChange(value.selection)} bookedDates={[]} />
+            <Calendar value={dateRange} onChange={(value) => handleDateRangeChange(value.selection)} bookedDates={bookedDates} />
             <div className="mb-6 p-3 border border-gray-400 rounded-xl">
                 <label className="mb-2 block font-bold text-xs">Guest</label>
                 <select value={guests} onChange={(e) => setGuests(e.target.value)} className="w-full -ml-1 text-xm">
@@ -122,3 +115,4 @@ const ReservationSidebar: React.FC<ReservationSidebarProps> = ({ property }) => 
 };
 
 export default ReservationSidebar;
+

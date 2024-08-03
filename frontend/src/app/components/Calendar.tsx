@@ -16,19 +16,17 @@ const Calendar: React.FC<CalendarProps> = ({
     bookedDates
 }) => {
     return (
-        <div className="w-full">
-            <DateRange
-                className="w-full border border-gray-400 rounded-xl mb-4"
-                rangeColors={['#262626']}
-                ranges={[value]}
-                date={new Date()}
-                onChange={onChange}
-                direction="vertical"
-                showDateDisplay={false}
-                minDate={new Date()}
-                disabledDates={bookedDates}
-            />
-        </div>
+        <DateRange
+            className="w-full border border-gray-400 rounded-xl mb-4"
+            rangeColors={['#262626']}
+            ranges={[value]}
+            date={new Date()}
+            onChange={onChange}
+            direction="vertical"
+            showDateDisplay={false}
+            minDate={new Date()}
+            disabledDates={bookedDates}
+        />
     );
 }
 
