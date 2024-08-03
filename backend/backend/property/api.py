@@ -24,6 +24,7 @@ def properties_list(request):
     properties = Property.objects.all()  # Fetch all property models from db
 
     user = None
+    favourites = []
 
     # How to check user authentication even when endpoint if open access
     # Authenticate user and check for favourited properties
