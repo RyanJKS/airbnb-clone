@@ -1,15 +1,21 @@
-import Image from "next/image"
-import { PropertyType } from "./PropertyList"
-import { useRouter } from "next/navigation"
+import Image from "next/image";
+import { PropertyType } from "./PropertyList";
+import { useRouter } from "next/navigation";
+import FavouriteButton from "../FavouriteButton";
+import { useAuth } from "@/app/contexts/AuthContext";
 
 interface PropertyProps {
-    property: PropertyType
+    property: PropertyType;
+    markFavourite: (id: string, is_favourite: boolean) => void;
 }
 
-
-const PropertyListItem: React.FC<PropertyProps> = ({ property }) => {
-
+const PropertyListItem: React.FC<PropertyProps> = ({ property, markFavourite }) => {
     const router = useRouter();
+    const { userId } = useAuth();
+
+    const handleFavouriteClick = (is_favourite: boolean) => {
+        markFavourite(property.id, is_favourite);
+    };
 
     return (
         <div className="cursor-pointer" onClick={() => router.push(`properties/${property.id}`)}>
@@ -21,6 +27,13 @@ const PropertyListItem: React.FC<PropertyProps> = ({ property }) => {
                     className="hover:scale-110 object-cover transition h-full w-full"
                     alt="Modern House"
                 />
+                {userId && (
+                    <FavouriteButton
+                        id={property.id}
+                        is_favourite={property.is_favourite}
+                        markFavourite={handleFavouriteClick}
+                    />
+                )}
             </div>
 
             <div className="mt-2">
@@ -31,7 +44,7 @@ const PropertyListItem: React.FC<PropertyProps> = ({ property }) => {
                 <p className="text-sm"><strong>{property.price_per_night}</strong></p>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default PropertyListItem
+export default PropertyListItem;

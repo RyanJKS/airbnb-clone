@@ -6,9 +6,12 @@ from .models import Property
 from .serializers import PropertyListSerializer
 from django.http import JsonResponse
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 
 from .serializers import PropertySerializer, PropertyListSerializer, PropertiesDetailSerializer, ReservationSerializer, ReservationListSerializer
 from .models import PropertyImage, Reservation
+from useraccount.models import User
+from rest_framework_simplejwt.tokens import AccessToken
 
 import os
 
@@ -18,16 +21,35 @@ import os
 @authentication_classes([]) # Ability added in settings.py for rest_framework section
 @permission_classes([]) # Ability added in settings.py for rest_Framework section
 def properties_list(request):
-    properties = Property.objects.all() # get all property models from db
-    
-    host_id = request.GET.get('host_id','')
-    
+    properties = Property.objects.all()  # Fetch all property models from db
+
+    user = None
+
+    # How to check user authentication even when endpoint if open access
+    # Authenticate user and check for favourited properties
+    auth_header = request.META.get('HTTP_AUTHORIZATION')
+    if auth_header:
+        try:
+            token_str = auth_header.split('Bearer ')[1]
+            token = AccessToken(token_str)
+            user_id = token.payload.get('user_id')
+            user = User.objects.get(pk=user_id)
+        except (IndexError, User.DoesNotExist, KeyError, Exception):
+            user = None
+
+    if user:
+        favourites = [
+            property.id for property in properties if user in property.favourited.all()
+        ]
+
+    # Filter properties by host_id if provided
+    host_id = request.GET.get('host_id')
     if host_id:
         properties = properties.filter(host_id=host_id)
-    
+
     serializer = PropertyListSerializer(properties, many=True)
-    
-    return JsonResponse({'data': serializer.data})
+
+    return JsonResponse({'data': serializer.data, 'favourites': favourites})
 
 # Create new property
 @api_view(['POST'])
@@ -119,3 +141,16 @@ def property_reservations(request, pk):
 
     serializer = ReservationListSerializer(reservations, many=True)
     return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
+
+# Tag property as favorite
+@api_view(['POST'])
+def toggle_favourite(request, pk):    
+    property_obj = get_object_or_404(Property, pk=pk)
+    
+    if request.user in property_obj.favourited.all():
+        property_obj.favourited.remove(request.user)
+        return JsonResponse({'is_favourite': False}, status=status.HTTP_200_OK)
+    else:
+        property_obj.favourited.add(request.user)
+        return JsonResponse({'is_favourite': True}, status=status.HTTP_200_OK)
+    
