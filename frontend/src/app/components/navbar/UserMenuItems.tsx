@@ -27,6 +27,13 @@ const UserMenuItems: React.FC<UserMenuItemsProps> = ({ setIsOpen }) => {
                         }} />
 
                     <MenuItem
+                        label="Inbox"
+                        onClick={() => {
+                            setIsOpen(false)
+                            router.push('/inbox/')
+                        }} />
+
+                    <MenuItem
                         label="My Properties"
                         onClick={() => {
                             setIsOpen(false)
