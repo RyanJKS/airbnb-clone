@@ -26,3 +26,4 @@ class ConversationMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConversationMessage
         fields = ('id', 'body', 'sent_to', 'created_by',)
+        

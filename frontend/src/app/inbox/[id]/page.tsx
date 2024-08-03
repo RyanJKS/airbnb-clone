@@ -25,12 +25,14 @@ const InboxConversationPage = ({ params }: { params: { id: string } }) => {
     const { userId } = useAuth();
     const [conversation, setConversation] = useState<ConversationType | null>(null);
     const [token, setToken] = useState<string>('');
+    const [oldMessages, setOldMessages] = useState<MessageType[]>([])
 
     const fetchConversation = useCallback(async () => {
         if (userId) {
             try {
                 const response = await apiService.get(`/api/chat/${params.id}/`);
                 setConversation(response.conversation);
+                setOldMessages(response.messages)
             } catch (err) {
                 console.error('Error fetching conversation:', err);
             }
@@ -62,7 +64,7 @@ const InboxConversationPage = ({ params }: { params: { id: string } }) => {
         <main className="max-w-[1500px] mx-auto px-6 pb-6">
             <h1 className="my-6 text-2xl">Inbox Conversation</h1>
             {conversation ? (
-                <ConversationDetail userId={userId} token={token} conversation={conversation} />
+                <ConversationDetail userId={userId} token={token} conversation={conversation} oldMessages={oldMessages} />
             ) : (
                 <p>No conversation found.</p>
             )}

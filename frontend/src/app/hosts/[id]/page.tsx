@@ -48,7 +48,7 @@ const HostDetailPage = ({ params }: { params: { id: string } }) => {
                             height={200}
                         />
                         <h1 className="mt-6 text-2xl"> {host.name}</h1>
-                        {userId != params.id && <HostContactButton />}
+                        {userId != params.id && <HostContactButton userId={userId} hostId={params.id} />}
                     </div>
                 </aside>
 
