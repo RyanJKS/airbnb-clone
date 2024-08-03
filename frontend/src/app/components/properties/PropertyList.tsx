@@ -14,9 +14,10 @@ export type PropertyType = {
 
 interface PropertyListProps {
     host_id?: string | null;
+    favourites?: boolean | null;
 }
 
-const PropertyList: React.FC<PropertyListProps> = ({ host_id }) => {
+const PropertyList: React.FC<PropertyListProps> = ({ host_id, favourites }) => {
     const [properties, setProperties] = useState<PropertyType[]>([]);
 
     const markFavourite = useCallback((id: string, is_favourite: boolean) => {
@@ -29,7 +30,14 @@ const PropertyList: React.FC<PropertyListProps> = ({ host_id }) => {
     }, []);
 
     const getProperties = useCallback(async () => {
-        const url = host_id ? `/api/properties/?host_id=${host_id}` : '/api/properties/';
+        let url = '/api/properties/';
+
+        if (host_id) {
+            url += `?host_id=${host_id}`
+        } else if (favourites) {
+            url += '?is_favourites=true'
+        }
+
         try {
             const response = await apiService.get(url);
             const updatedProperties = response.data.map((property: PropertyType) => ({

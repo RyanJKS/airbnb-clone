@@ -44,9 +44,13 @@ def properties_list(request):
         ]
 
     # Filter properties by host_id if provided
-    host_id = request.GET.get('host_id')
+    is_favourites = request.GET.get('is_favourites','')
+    host_id = request.GET.get('host_id','')
     if host_id:
         properties = properties.filter(host_id=host_id)
+        
+    if is_favourites:
+        properties = properties.filter(favourited__in=[user])
 
     serializer = PropertyListSerializer(properties, many=True)
 

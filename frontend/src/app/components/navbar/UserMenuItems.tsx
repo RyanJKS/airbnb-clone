@@ -25,17 +25,26 @@ const UserMenuItems: React.FC<UserMenuItemsProps> = ({ setIsOpen }) => {
                             setIsOpen(false)
                             router.push(`/hosts/${userId}`)
                         }} />
+
                     <MenuItem
                         label="My Properties"
                         onClick={() => {
                             setIsOpen(false)
                             router.push('/myproperties/')
                         }} />
+
                     <MenuItem
                         label="My Reservations"
                         onClick={() => {
                             setIsOpen(false)
                             router.push('/reservations/')
+                        }} />
+
+                    <MenuItem
+                        label="My Favourites"
+                        onClick={() => {
+                            setIsOpen(false)
+                            router.push('/myfavourites/')
                         }} />
                     <LogoutButton />
                 </>
