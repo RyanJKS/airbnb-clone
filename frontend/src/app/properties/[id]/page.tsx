@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import apiService from "@/app/api/apiService";
 import ReservationSidebar from "@/app/components/properties/ReservationSidebar";
 import Image from "next/image";
+import Link from "next/link";
 
 
 interface Host {
@@ -110,7 +111,9 @@ const PropertyDetailPage = ({ params }: { params: { id: string } }) => {
 
                             <hr />
 
-                            <div className="py-6 flex items-center space-x-4">
+                            <Link
+                                href={`/hosts/${property.host.id}`}
+                                className="py-6 flex items-center space-x-4">
                                 <Image
                                     src={property.host.profile_img_url ? property.host.profile_img_url : "/template_host_image.jpeg"}
                                     width={50}
@@ -120,7 +123,7 @@ const PropertyDetailPage = ({ params }: { params: { id: string } }) => {
                                 />
 
                                 <p><strong>{property.host.name}</strong> is your host</p>
-                            </div>
+                            </Link>
 
                             <hr />
 

@@ -19,6 +19,12 @@ import os
 @permission_classes([]) # Ability added in settings.py for rest_Framework section
 def properties_list(request):
     properties = Property.objects.all() # get all property models from db
+    
+    host_id = request.GET.get('host_id','')
+    
+    if host_id:
+        properties = properties.filter(host_id=host_id)
+    
     serializer = PropertyListSerializer(properties, many=True)
     
     return JsonResponse({'data': serializer.data})
