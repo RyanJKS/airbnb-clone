@@ -21,16 +21,20 @@ const PropertyList: React.FC<PropertyListProps> = ({ host_id }) => {
     const [properties, setProperties] = useState<PropertyType[]>([])
 
     const getProperties = async () => {
-        let url = '/api/properties/'
-
+        let url = '/api/properties/';
         if (host_id) {
-            url += `?host_id=${host_id}`
+            url += `?host_id=${host_id}`;
         }
 
-        const tempProperties = await apiService.get(url);
-        setProperties(tempProperties.data)
-    }
+        try {
+            const tempProperties = await apiService.get(url);
+            setProperties(tempProperties.data);
+        } catch (error) {
+            console.error('Error fetching properties:', error);
+        }
+    };
 
+    // Call the function within useEffect
     useEffect(() => {
         getProperties();
     }, []);

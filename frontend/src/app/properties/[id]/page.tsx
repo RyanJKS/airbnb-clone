@@ -115,7 +115,7 @@ const PropertyDetailPage = ({ params }: { params: { id: string } }) => {
                                 href={`/hosts/${property.host.id}`}
                                 className="py-6 flex items-center space-x-4">
                                 <Image
-                                    src={property.host.profile_img_url ? property.host.profile_img_url : "/template_host_image.jpeg"}
+                                    src={property.host.profile_img_url || "/template_host_image.jpeg"}
                                     width={50}
                                     height={50}
                                     className="rounded-full"

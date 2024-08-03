@@ -19,7 +19,6 @@ const HostDetailPage = ({ params }: { params: { id: string } }) => {
         id: '',
         name: '',
         profile_img_url: '',
-        // Initialize other properties as needed
     });
     const { userId } = useAuth();
 
@@ -42,7 +41,7 @@ const HostDetailPage = ({ params }: { params: { id: string } }) => {
                 <aside className="col-span-1 mb-4">
                     <div className="flex flex-col items-center p-6 rounded-xl border border-gray-300 shadow-xl">
                         <Image
-                            src={host.profile_img_url ? host.profile_img_url : "/template_host_image.jpeg"}
+                            src={host.profile_img_url || "/template_host_image.jpeg"}
                             alt="Host Profile"
                             className="rounded-full"
                             width={200}
