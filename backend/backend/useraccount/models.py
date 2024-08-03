@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserM
 
 
 class CustomUserManager(UserManager):
-    def _create_user(self,name, email, password, **extra_fields):
+    def _create_user(self, name, email, password, **extra_fields):
         if not email:
             raise ValueError("Please provide a valid email address")
         
@@ -13,6 +13,7 @@ class CustomUserManager(UserManager):
         user = self.model(email=email, name=name, **extra_fields)
         user.set_password(password) # Password will be hashed/encryptes
         user.save(using=self.db)
+        return user
         
     def create_user(self,name=None,email=None,password=None,**extra_fields):
         extra_fields.setdefault('is_staff',False)
@@ -42,7 +43,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     USERNAME_FIELD = 'email'
     EMAIL_FIELD = 'email'
-    REQUIRED_FIELDS = ['name',]
+    REQUIRED_FIELDS = ['name']
     
     def profile_img_url(self):
         if self.profile_img:
