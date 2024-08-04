@@ -10,51 +10,28 @@ from django.shortcuts import get_object_or_404
 
 from .serializers import PropertySerializer, PropertyListSerializer, PropertiesDetailSerializer, ReservationSerializer, ReservationListSerializer
 from .models import PropertyImage, Reservation
-from useraccount.models import User
-from rest_framework_simplejwt.tokens import AccessToken
+from .authentication import get_authenticated_user
+from .filters import filter_properties, get_user_favourites
 
 import os
 
 
-# Get all property for home page
+# Get all properties depending on filters and user authentication
 @api_view(['GET'])
-@authentication_classes([]) # Ability added in settings.py for rest_framework section
-@permission_classes([]) # Ability added in settings.py for rest_Framework section
+@authentication_classes([])  # Global settings for authentication
+@permission_classes([])  # Global settings for permissions
 def properties_list(request):
-    properties = Property.objects.all()  # Fetch all property models from db
+    properties = Property.objects.all()
+    user = get_authenticated_user(request) # Get authentication even if the endpoint if open
+    favourites = get_user_favourites(user, properties) if user else []
 
-    user = None
-    favourites = []
-
-    # How to check user authentication even when endpoint if open access
-    # Authenticate user and check for favourited properties
-    auth_header = request.META.get('HTTP_AUTHORIZATION')
-    if auth_header:
-        try:
-            token_str = auth_header.split('Bearer ')[1]
-            token = AccessToken(token_str)
-            user_id = token.payload.get('user_id')
-            user = User.objects.get(pk=user_id)
-        except (IndexError, User.DoesNotExist, KeyError, Exception):
-            user = None
-
-    if user:
-        favourites = [
-            property.id for property in properties if user in property.favourited.all()
-        ]
-
-    # Filter properties by host_id if provided
-    is_favourites = request.GET.get('is_favourites','')
-    host_id = request.GET.get('host_id','')
-    if host_id:
-        properties = properties.filter(host_id=host_id)
-        
-    if is_favourites:
+    properties = filter_properties(properties, request)
+    if request.GET.get('is_favourites') and user:
         properties = properties.filter(favourited__in=[user])
 
     serializer = PropertyListSerializer(properties, many=True)
+    return JsonResponse({'data': serializer.data, 'favourites': favourites}, status=status.HTTP_200_OK)
 
-    return JsonResponse({'data': serializer.data, 'favourites': favourites})
 
 # Create new property
 @api_view(['POST'])

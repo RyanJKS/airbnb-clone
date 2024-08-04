@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import PropertyListItem from "./PropertyListItem";
+import PropertyListItem from './PropertyListItem';
 import apiService from '@/app/api/apiService';
+import { useFilters } from '@/app/contexts/FiltersContext';
 
 export type PropertyType = {
     id: string;
@@ -18,6 +19,7 @@ interface PropertyListProps {
 }
 
 const PropertyList: React.FC<PropertyListProps> = ({ host_id, favourites }) => {
+    const { filters } = useFilters();
     const [properties, setProperties] = useState<PropertyType[]>([]);
 
     const markFavourite = useCallback((id: string, is_favourite: boolean) => {
@@ -33,10 +35,32 @@ const PropertyList: React.FC<PropertyListProps> = ({ host_id, favourites }) => {
         let url = '/api/properties/';
 
         if (host_id) {
-            url += `?host_id=${host_id}`
+            url += `?host_id=${host_id}`;
         } else if (favourites) {
-            url += '?is_favourites=true'
+            url += '?is_favourites=true';
+        } else {
+            const params = new URLSearchParams();
+
+            if (filters.destination) {
+                params.append('country', filters.destination);
+            }
+            if (filters.checkIn) {
+                params.append('checkIn', filters.checkIn);
+            }
+            if (filters.checkOut) {
+                params.append('checkOut', filters.checkOut);
+            }
+            if (filters.guests) {
+                params.append('numGuests', filters.guests.toString());
+            }
+
+            const queryString = params.toString();
+            if (queryString) {
+                url += `?${queryString}`;
+            }
         }
+
+        console.log(url)
 
         try {
             const response = await apiService.get(url);
@@ -48,11 +72,11 @@ const PropertyList: React.FC<PropertyListProps> = ({ host_id, favourites }) => {
         } catch (error) {
             console.error('Error fetching properties:', error);
         }
-    }, [host_id]);
+    }, [filters]);
 
     useEffect(() => {
         getProperties();
-    }, [host_id]);
+    }, [filters]);
 
     return (
         <>
