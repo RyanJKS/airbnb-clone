@@ -35,10 +35,12 @@ const Categories: React.FC = () => {
         if (filters.category === category) {
             // Reset the filters if the same category is clicked
             setFilters({
-                ...filters,
+                destination: '',
+                checkIn: '',
+                checkOut: '',
+                guests: 1,
                 category: '',
             });
-            router.push('/?search');
         } else {
             // Set the filters with the new category
             setFilters({
