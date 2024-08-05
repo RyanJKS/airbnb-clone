@@ -34,7 +34,7 @@ const CitySelector: React.FC<CitySelectorProps> = ({ selectedCity, onSelectCity 
 
     return (
         <div className="absolute top-full left-0 w-full bg-white border rounded-xl shadow-md z-10">
-            {filteredCities.length > 0 ? (
+            {filteredCities.length > 0 && (
                 filteredCities.map((city, index) => (
                     <div
                         key={index}
@@ -44,8 +44,6 @@ const CitySelector: React.FC<CitySelectorProps> = ({ selectedCity, onSelectCity 
                         {city.name}, {city.country}
                     </div>
                 ))
-            ) : (
-                <div className="p-2">No results found</div>
             )}
         </div>
     );

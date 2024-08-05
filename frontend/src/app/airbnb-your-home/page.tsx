@@ -1,16 +1,16 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import apiService from '../api/apiService';
 import TextInput from './TextInput';
 import TextAreaInput from './TextAreaInput';
-import CategorySelector from './CategorySelector';
 import ImageUploader from './ImageUploader';
-import CountrySelect from '../hooks/useCountries';
+import CategorySelector from './CategorySelector';
+import CountryCitySelector from './CountryCitySelector';
 import CustomButton from '../components/forms/CustomButton';
-import apiService from '../api/apiService';
-import { useRouter } from 'next/navigation';
 
 const validationSchema = yup.object().shape({
     category: yup.string().required('Category is required'),
@@ -66,8 +66,9 @@ const AirbnbYourHomePage: React.FC = () => {
 
     const [selectedCategory, setSelectedCategory] = useState<string>('');
     const [imagePreviews, setImagePreviews] = useState<Array<{ file: File, url: string }>>([]);
-    const [selectedCountry, setSelectedCountry] = useState<{ value: string; label: string } | null>(null);
     const [errorMessage, setErrorMessage] = useState<string[]>([]);
+
+    const [selectedLocation, setSelectedLocation] = useState<{ value: string; countryCode: string } | null>(null)
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
@@ -84,7 +85,6 @@ const AirbnbYourHomePage: React.FC = () => {
         setImagePreviews(updatedImagePreviews);
         setValue('image_files', updatedImagePreviews.map(img => img.file));
     };
-
     const submitProperty: SubmitHandler<IFormInputs> = async (data) => {
         try {
             const formData = new FormData();
@@ -178,12 +178,12 @@ const AirbnbYourHomePage: React.FC = () => {
                     register={register}
                     error={errors.guests?.message}
                 />
-                <CountrySelect
-                    selectedCountry={selectedCountry?.value || ''}
-                    onSelectCountry={(country) => {
-                        setSelectedCountry(country);
-                        setValue('country', country ? country.label : ''); // sets value for this field to be country full name by country.label
-                        setValue('country_code', country ? country.value : ''); // sets value for country_code field to be country code by country.value
+                <CountryCitySelector
+                    selectedLocation={selectedLocation?.value || ''}
+                    onSelectLocation={(location) => {
+                        setSelectedLocation(location);
+                        setValue('country', location ? location.value : '');
+                        setValue('country_code', location ? location.countryCode : '');
                     }}
                     error={errors.country?.message}
                 />

@@ -1,5 +1,6 @@
 'use client';
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useCallback } from "react";
 import { FaSearch } from "react-icons/fa";
 import Calendar from "../Calendar";
 import GuestSelector from "../GuestSelector";
@@ -7,6 +8,9 @@ import { Range, RangeKeyDict } from 'react-date-range';
 import { useFilters } from "@/app/contexts/FiltersContext";
 import CitySelector from "../CitySelector";
 import { format } from 'date-fns';
+import FilterInput from './FilterInput';
+import FilterModalContainer from './FilterModalContainer';
+import { useRouter } from "next/navigation";
 
 interface ModalState {
     where: boolean;
@@ -15,15 +19,6 @@ interface ModalState {
     who: boolean;
 }
 
-const getDefaultFormattedDate = (date: Date) => format(date, 'yyyy-MM-dd');
-
-const addDays = (date: Date, days: number) => {
-    const result = new Date(date);
-    result.setDate(result.getDate() + days);
-    return result;
-};
-
-// Debounce function
 const useDebounce = (value: string, delay: number) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -42,31 +37,33 @@ const useDebounce = (value: string, delay: number) => {
 
 const SearchFilters: React.FC = () => {
     const { setFilters } = useFilters();
+    const router = useRouter();
 
-    const [showModal, setShowModal] = useState<ModalState>({ where: false, checkIn: false, checkOut: false, who: false });
+    const initialModalState: ModalState = { where: false, checkIn: false, checkOut: false, who: false };
+
+    const [showModal, setShowModal] = useState<ModalState>(initialModalState);
     const [selectedCity, setSelectedCity] = useState<{ name: string; country: string } | null>(null);
     const [cityInput, setCityInput] = useState<string>('');
     const [checkInDates, setCheckInDates] = useState<Range>({
-        startDate: new Date(getDefaultFormattedDate(new Date())),
-        endDate: new Date(getDefaultFormattedDate(new Date())),
+        startDate: undefined,
+        endDate: undefined,
         key: 'checkIn'
     });
     const [checkOutDates, setCheckOutDates] = useState<Range>({
-        startDate: new Date(getDefaultFormattedDate(addDays(new Date(), 1))),
-        endDate: new Date(getDefaultFormattedDate(addDays(new Date(), 1))),
+        startDate: undefined,
+        endDate: undefined,
         key: 'checkOut'
     });
     const [guests, setGuests] = useState<number>(1);
 
-    const debouncedCityInput = useDebounce(cityInput, 500);
+    const debouncedCityInput = useDebounce(cityInput, 300);
 
-    const toggleModal = (section: keyof ModalState) => {
-        setShowModal((prev) => {
-            const newState = { where: false, checkIn: false, checkOut: false, who: false };
-            newState[section] = !prev[section];
-            return newState;
-        });
-    };
+    const toggleModal = useCallback((section: keyof ModalState) => {
+        setShowModal((prev) => ({
+            ...initialModalState,
+            [section]: !prev[section]
+        }));
+    }, []);
 
     const handleCheckInChange = (ranges: RangeKeyDict) => {
         const { checkIn } = ranges;
@@ -78,6 +75,14 @@ const SearchFilters: React.FC = () => {
         setCheckOutDates(checkOut);
     };
 
+    const resetFilters = () => {
+        setSelectedCity(null);
+        setCityInput('');
+        setCheckInDates({ startDate: undefined, endDate: undefined, key: 'checkIn' });
+        setCheckOutDates({ startDate: undefined, endDate: undefined, key: 'checkOut' });
+        setGuests(1);
+    };
+
     const handleSubmit = () => {
         const data = {
             destination: selectedCity ? `${selectedCity.name}, ${selectedCity.country}` : '',
@@ -85,95 +90,91 @@ const SearchFilters: React.FC = () => {
             checkOut: checkOutDates.endDate ? format(checkOutDates.endDate, 'yyyy-MM-dd') : '',
             guests,
         };
-        console.log(data);
+
+        const params = new URLSearchParams(
+            Object.entries(data)
+                .filter(([_, value]) => value)
+                .map(([key, value]) => [key, String(value)])
+        );
+
+        router.push(`/?search&${params.toString()}`);
 
         setFilters(data);
+        setShowModal(initialModalState);
+        resetFilters();
     };
 
     return (
         <div className="h-[48px] lg:h-[64px] flex flex-row items-center justify-between border rounded-full relative">
             <div className="hidden lg:block">
                 <div className="flex flex-row items-center justify-between relative">
-                    <div
-                        className="w-[250px] h-[48px] lg:h-[64px] px-8 flex flex-col justify-center rounded-full hover:bg-gray-200 cursor-pointer relative"
+                    <FilterInput
+                        label="Where"
+                        value={cityInput}
+                        placeholder="Search destinations"
                         onClick={() => toggleModal("where")}
-                    >
-                        <p className="text-xs font-semibold">Where</p>
-                        <div className="relative">
-                            <input
-                                type="text"
-                                placeholder="Search destinations"
-                                onClick={(e) => e.stopPropagation()}
-                                onFocus={() => setShowModal(prev => ({ ...prev, where: true }))}
-                                value={cityInput}
-                                onChange={(e) => setCityInput(e.target.value)}
-                                className="w-full rounded-full border-none focus:outline-none focus:ring-0"
-                            />
-                            {showModal.where && debouncedCityInput && (
+                        showModal={showModal.where}
+                        onInputChange={setCityInput}
+                        debouncedInput={debouncedCityInput}
+                        renderModal={() => (
+                            <FilterModalContainer>
                                 <CitySelector
                                     selectedCity={debouncedCityInput}
                                     onSelectCity={(city) => {
                                         setSelectedCity(city);
                                         setCityInput(`${city.name}, ${city.country}`);
-                                        setShowModal({ ...showModal, where: false });
+                                        setShowModal(initialModalState);  // Close all modals
                                     }}
                                 />
-                            )}
-                        </div>
-                    </div>
-
-                    <div
-                        className="h-[48px] lg:h-[64px] px-8 flex flex-col justify-center rounded-full hover:bg-gray-200 cursor-pointer relative"
+                            </FilterModalContainer>
+                        )}
+                    />
+                    <FilterInput
+                        label="Check in"
+                        value={checkInDates.startDate ? checkInDates.startDate.toLocaleDateString() : "Add dates"}
                         onClick={() => toggleModal("checkIn")}
-                    >
-                        <p className="text-xs font-semibold">Check in</p>
-                        <p className="text-sm">{checkInDates.startDate ? checkInDates.startDate.toLocaleDateString() : "Add dates"}</p>
-                        {showModal.checkIn && (
-                            <div className="w-[420px] absolute top-[100%] left-0 bg-white border rounded-xl shadow-md flex flex-col cursor-pointer z-10">
+                        showModal={showModal.checkIn}
+                        renderModal={() => (
+                            <FilterModalContainer>
                                 <Calendar
                                     value={checkInDates}
                                     onChange={handleCheckInChange}
                                 />
-                            </div>
+                            </FilterModalContainer>
                         )}
-                    </div>
-
-                    <div
-                        className="h-[46px] lg:h-[64px] px-8 flex flex-col justify-center rounded-full hover:bg-gray-200 cursor-pointer relative"
+                    />
+                    <FilterInput
+                        label="Check out"
+                        value={checkOutDates.endDate ? checkOutDates.endDate.toLocaleDateString() : "Add dates"}
                         onClick={() => toggleModal("checkOut")}
-                    >
-                        <p className="text-xs font-semibold">Check Out</p>
-                        <p className="text-sm">{checkOutDates.endDate ? checkOutDates.endDate.toLocaleDateString() : "Add dates"}</p>
-                        {showModal.checkOut && (
-                            <div className="w-[420px] absolute top-[100%] left-0 bg-white border rounded-xl shadow-md flex flex-col cursor-pointer z-10">
+                        showModal={showModal.checkOut}
+                        renderModal={() => (
+                            <FilterModalContainer>
                                 <Calendar
                                     value={checkOutDates}
                                     onChange={handleCheckOutChange}
                                 />
-                            </div>
+                            </FilterModalContainer>
                         )}
-                    </div>
-
-                    <div
-                        className="h-[48px] lg:h-[64px] px-8 flex flex-col justify-center rounded-full hover:bg-gray-200 cursor-pointer relative"
+                    />
+                    <FilterInput
+                        label="Who"
+                        value={guests > 1 ? `${guests} guests` : `${guests} guest`}
                         onClick={() => toggleModal("who")}
-                    >
-                        <p className="text-xs font-semibold">Who</p>
-                        <p className="text-sm">{guests > 1 ? `${guests} guests` : `${guests} guest`}</p>
-                        {showModal.who && (
-                            <div className="w-[220px] absolute top-[100%] left-0 bg-white border rounded-xl shadow-md flex flex-col cursor-pointer z-10">
+                        showModal={showModal.who}
+                        renderModal={() => (
+                            <FilterModalContainer>
                                 <GuestSelector
                                     onGuestsChange={(count) => {
                                         setGuests(count);
-                                        setShowModal({ ...showModal, who: false });
+                                        setShowModal(initialModalState);  // Close all modals
                                     }}
                                 />
-                            </div>
+                            </FilterModalContainer>
                         )}
-                    </div>
+                    />
                 </div>
             </div>
-
             <div className="p-2">
                 <div
                     className="p-2 lg:p-4 bg-airbnb rounded-full text-white hover:bg-airbnb-dark transition cursor-pointer"
