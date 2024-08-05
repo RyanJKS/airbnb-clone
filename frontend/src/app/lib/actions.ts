@@ -60,7 +60,7 @@ export async function handleRefresh() {
             throw new Error('No refresh token available');
         }
 
-        const response = await axios.post('http://localhost:8000/api/auth/token/refresh/', {
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_HOST}/api/auth/token/refresh/`, {
             refresh: refreshToken
         }, {
             headers: {
