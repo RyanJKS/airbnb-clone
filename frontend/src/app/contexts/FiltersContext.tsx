@@ -1,15 +1,17 @@
-// contexts/FiltersContext.tsx
 'use client'
 import { createContext, useContext, useState, ReactNode } from 'react';
 
+interface Filters {
+    destination: string;
+    checkIn: string;
+    checkOut: string;
+    guests: number;
+    category?: string;
+}
+
 interface FiltersContextProps {
-    filters: {
-        destination: string;
-        checkIn: string;
-        checkOut: string;
-        guests: number;
-    };
-    setFilters: (filters: { destination: string; checkIn: string; checkOut: string; guests: number }) => void;
+    filters: Filters;
+    setFilters: (filters: Filters) => void;
 }
 
 const FiltersContext = createContext<FiltersContextProps | undefined>(undefined);
@@ -27,11 +29,12 @@ interface FiltersProviderProps {
 }
 
 export const FiltersProvider: React.FC<FiltersProviderProps> = ({ children }) => {
-    const [filters, setFilters] = useState({
+    const [filters, setFilters] = useState<Filters>({
         destination: '',
         checkIn: '',
         checkOut: '',
         guests: 1,
+        category: '',
     });
 
     return (

@@ -88,7 +88,7 @@ const SearchFilters: React.FC = () => {
             destination: selectedCity ? `${selectedCity.name}, ${selectedCity.country}` : '',
             checkIn: checkInDates.startDate ? format(checkInDates.startDate, 'yyyy-MM-dd') : '',
             checkOut: checkOutDates.endDate ? format(checkOutDates.endDate, 'yyyy-MM-dd') : '',
-            guests,
+            guests
         };
 
         const params = new URLSearchParams(

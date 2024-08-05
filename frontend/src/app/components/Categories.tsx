@@ -3,19 +3,19 @@ import React, { useRef } from 'react';
 import { GiRoundStar, GiCampingTent } from "react-icons/gi";
 import { MdCabin, MdOutlinePool } from "react-icons/md";
 import { FaUmbrellaBeach } from "react-icons/fa";
+import { useFilters } from "@/app/contexts/FiltersContext";
+import { useRouter } from 'next/navigation';
 
-interface CategoriesProps {
-    selectedCategory: string;
-    onSelectCategory: (category: string) => void;
-}
+const Categories: React.FC = () => {
+    const { filters, setFilters } = useFilters();
+    const router = useRouter();
 
-const Categories: React.FC<CategoriesProps> = ({ selectedCategory, onSelectCategory }) => {
     const categories = [
-        { id: "icons", icon: GiRoundStar, label: "Icons" },
-        { id: "cabins", icon: MdCabin, label: "Cabins" },
-        { id: "beachfront", icon: FaUmbrellaBeach, label: "Beachfront" },
-        { id: "pools", icon: MdOutlinePool, label: "Amazing Pools" },
-        { id: "camping", icon: GiCampingTent, label: "Camping" },
+        { id: "Icons", icon: GiRoundStar, label: "Icons" },
+        { id: "Cabins", icon: MdCabin, label: "Cabins" }, // Fixed typo from "Xabins" to "Cabins"
+        { id: "Beachfront", icon: FaUmbrellaBeach, label: "Beachfront" },
+        { id: "Pools", icon: MdOutlinePool, label: "Amazing Pools" },
+        { id: "Camping", icon: GiCampingTent, label: "Camping" },
     ];
 
     const containerRef = useRef<HTMLDivElement>(null);
@@ -28,6 +28,24 @@ const Categories: React.FC<CategoriesProps> = ({ selectedCategory, onSelectCateg
                 : containerRef.current.scrollLeft + scrollAmount;
 
             containerRef.current.scrollTo({ left: newPosition, behavior: 'smooth' });
+        }
+    };
+
+    const handleCategorySelect = (category: string) => {
+        if (filters.category === category) {
+            // Reset the filters if the same category is clicked
+            setFilters({
+                ...filters,
+                category: '',
+            });
+            router.push('/?search');
+        } else {
+            // Set the filters with the new category
+            setFilters({
+                ...filters,
+                category,
+            });
+            router.push(`/?search&category=${category}`);
         }
     };
 
@@ -49,10 +67,10 @@ const Categories: React.FC<CategoriesProps> = ({ selectedCategory, onSelectCateg
                     return (
                         <div
                             key={category.id}
-                            className={`pb-4 flex flex-col items-center space-y-2 border-b-2 cursor-pointer ${selectedCategory === category.id ? 'border-red-500 opacity-100' : 'border-white opacity-60'} hover:opacity-100 hover:border-gray-200`}
-                            onClick={() => onSelectCategory(category.id)}
+                            className={`pb-4 flex flex-col items-center space-y-2 border-b-2 cursor-pointer ${filters.category === category.id ? 'border-red-500 opacity-100' : 'border-white opacity-60'} hover:opacity-100 hover:border-gray-200`}
+                            onClick={() => handleCategorySelect(category.id)}
                         >
-                            <IconComponent className={`text-2xl ${selectedCategory === category.id ? 'text-red-500' : 'text-black'}`} />
+                            <IconComponent className={`text-2xl ${filters.category === category.id ? 'text-red-500' : 'text-black'}`} />
                             <span className="text-xs">{category.label}</span>
                         </div>
                     );

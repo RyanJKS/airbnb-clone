@@ -53,6 +53,9 @@ const PropertyList: React.FC<PropertyListProps> = ({ host_id, favourites }) => {
             if (filters.guests) {
                 params.append('numGuests', filters.guests.toString());
             }
+            if (filters.category) {
+                params.append('category', filters.category);
+            }
 
             const queryString = params.toString();
             if (queryString) {

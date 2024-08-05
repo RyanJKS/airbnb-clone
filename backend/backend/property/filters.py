@@ -15,6 +15,7 @@ def filter_properties(properties, request):
         'bedrooms': request.GET.get('numbBedrooms'),
         'bathrooms': request.GET.get('numBathrooms'),
         'guests': request.GET.get('numGuests'),
+        'category': request.GET.get('category'),
     }
 
     if filters['host_id']:
@@ -29,6 +30,8 @@ def filter_properties(properties, request):
         properties = properties.filter(bathrooms__gte=filters['bathrooms'])
     if filters['guests']:
         properties = properties.filter(guests__gte=filters['guests'])
+    if filters['category']:
+        properties = properties.filter(category=filters['category'])
 
     if filters['checkin_date'] and filters['checkout_date']:
         properties = filter_by_availability(properties, filters['checkin_date'], filters['checkout_date'])
