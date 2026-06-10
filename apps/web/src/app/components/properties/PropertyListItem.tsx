@@ -18,7 +18,7 @@ const PropertyListItem: React.FC<PropertyProps> = ({ property, markFavourite }) 
     };
 
     return (
-        <div className="cursor-pointer" onClick={() => router.push(`properties/${property.id}`)}>
+        <div className="cursor-pointer" onClick={() => router.push(`/properties/${property.id}`)}>
             <div className="relative overflow-hidden aspect-square rounded-xl">
                 <Image
                     fill

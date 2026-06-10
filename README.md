@@ -72,14 +72,12 @@ bun dev
 
 ### API
 
-Create a virtual environment, install requirements, then run the server:
+Sync the API environment with `uv`, then run the server:
 
 ```bash
 cd apps/api
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python manage.py runserver
+uv sync
+uv run python manage.py runserver
 ```
 
 If you do not provide database environment variables, the API falls back to SQLite for easier local startup.

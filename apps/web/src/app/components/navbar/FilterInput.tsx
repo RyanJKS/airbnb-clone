@@ -31,6 +31,7 @@ const FilterInput: React.FC<FilterInputProps> = ({
                 <input
                     type="text"
                     placeholder={placeholder}
+                    suppressHydrationWarning
                     onClick={(e) => e.stopPropagation()}
                     onFocus={onClick}
                     value={value}

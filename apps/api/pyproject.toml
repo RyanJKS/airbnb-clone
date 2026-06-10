@@ -1,0 +1,22 @@
+[project]
+name = "airbnb-clone-api"
+version = "0.1.0"
+description = "Django API for the Airbnb clone monorepo"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "channels==4.0.0",
+  "daphne==4.0.0",
+  "Django==5.0.2",
+  "dj-rest-auth==4.0.0",
+  "django-allauth==0.52.0",
+  "django-cors-headers==4.3.1",
+  "djangorestframework==3.14.0",
+  "djangorestframework-simplejwt==5.3.1",
+  "gunicorn==21.2.0",
+  "pillow==10.2.0",
+  "psycopg2-binary==2.9.9",
+  "python-dotenv==1.0.1",
+]
+
+[tool.uv]
+package = false

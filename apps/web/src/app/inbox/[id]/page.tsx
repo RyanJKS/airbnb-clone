@@ -5,6 +5,7 @@ import { useAuth } from "@/app/contexts/AuthContext";
 import apiService from "@/app/api/apiService";
 import { UserType } from "../page";
 import { getAccessToken } from '@/app/lib/actions';
+import { useParams } from 'next/navigation';
 
 export type MessageType = {
     id: string;
@@ -21,23 +22,25 @@ export type ConversationType = {
 }
 
 
-const InboxConversationPage = ({ params }: { params: { id: string } }) => {
+const InboxConversationPage = () => {
+    const params = useParams<{ id: string }>();
+    const conversationId = typeof params.id === 'string' ? params.id : params.id?.[0];
     const { userId } = useAuth();
     const [conversation, setConversation] = useState<ConversationType | null>(null);
     const [token, setToken] = useState<string>('');
     const [oldMessages, setOldMessages] = useState<MessageType[]>([])
 
     const fetchConversation = useCallback(async () => {
-        if (userId) {
+        if (userId && conversationId) {
             try {
-                const response = await apiService.get(`/api/chat/${params.id}/`);
+                const response = await apiService.get(`/api/chat/${conversationId}/`);
                 setConversation(response.conversation);
                 setOldMessages(response.messages)
             } catch (err) {
                 console.error('Error fetching conversation:', err);
             }
         }
-    }, [params.id, userId]);
+    }, [conversationId, userId]);
 
     const getToken = useCallback(async () => {
         const userToken = await getAccessToken();

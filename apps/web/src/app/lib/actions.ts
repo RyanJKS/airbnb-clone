@@ -1,71 +1,82 @@
-"use server";
-import { cookies } from "next/headers";
 import axios from 'axios';
 import { getApiBaseUrl } from "@/lib/runtime-config";
 
+const ONE_HOUR = 60 * 60;
+const ONE_WEEK = 60 * 60 * 24 * 7;
+
+function canUseCookies() {
+    return typeof document !== "undefined";
+}
+
+function setCookie(name: string, value: string, maxAge: number) {
+    if (!canUseCookies()) {
+        return;
+    }
+
+    const secure = typeof window !== "undefined" && window.location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = `${name}=${encodeURIComponent(value)}; Max-Age=${maxAge}; Path=/; SameSite=Lax${secure}`;
+}
+
+function getCookie(name: string) {
+    if (!canUseCookies()) {
+        return null;
+    }
+
+    const cookies = document.cookie.split("; ").filter(Boolean);
+    const match = cookies.find((cookie) => cookie.startsWith(`${name}=`));
+
+    if (!match) {
+        return null;
+    }
+
+    return decodeURIComponent(match.split("=").slice(1).join("="));
+}
+
+function clearCookie(name: string) {
+    setCookie(name, "", 0);
+}
+
 // sets cookies when login
 export async function handleLogin(userId: string, accessToken: string, refreshToken: string) {
-    const cookieStore = await cookies();
-
-    cookieStore.set('session_userId', userId, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60 * 24 * 7, // one week
-        path: '/'
-    })
-
-    cookieStore.set('session_access_token', accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60, // 60 mins
-        path: '/'
-    })
-
-    cookieStore.set('session_refresh_token', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60 * 24 * 7, // one week
-        path: '/'
-    })
+    setCookie('session_userId', userId, ONE_WEEK);
+    setCookie('session_access_token', accessToken, ONE_HOUR);
+    setCookie('session_refresh_token', refreshToken, ONE_WEEK);
 }
 
 export async function resetAuthCookies() {
-    const cookieStore = await cookies();
-
-    cookieStore.set('session_userId', '')
-    cookieStore.set('session_access_token', '')
-    cookieStore.set('session_refresh_token', '')
+    clearCookie('session_userId');
+    clearCookie('session_access_token');
+    clearCookie('session_refresh_token');
 }
 
 export async function getUserId() {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get('session_userId')?.value;
-    return userId ?? null;
+    return getCookie('session_userId');
 }
 
 export async function getAccessToken() {
-    const cookieStore = await cookies();
-    let accessToken = cookieStore.get('session_access_token')?.value;
+    let accessToken = getCookie('session_access_token');
     if (!accessToken) {
-        accessToken = await handleRefresh();
+        const refreshToken = getCookie('session_refresh_token');
+        if (!refreshToken) {
+            return null;
+        }
+
+        accessToken = await handleRefresh(refreshToken);
     }
     return accessToken ?? null;
 }
 
 export async function getRefreshToken() {
-    const cookieStore = await cookies();
-    const refreshToken = cookieStore.get('session_refresh_token')?.value;
-
-    return refreshToken ?? null;
+    return getCookie('session_refresh_token');
 }
 
-export async function handleRefresh() {
+export async function handleRefresh(existingRefreshToken?: string | null) {
 
     try {
-        const refreshToken = await getRefreshToken();
+        const refreshToken = existingRefreshToken ?? await getRefreshToken();
 
         if (!refreshToken) {
-            throw new Error('No refresh token available');
+            return null;
         }
 
         const response = await axios.post(`${getApiBaseUrl()}/api/auth/token/refresh/`, {
@@ -81,22 +92,14 @@ export async function handleRefresh() {
         console.log('Response - Refresh:', data);
 
         if (data.access) {
-            const cookieStore = await cookies();
-
-            cookieStore.set('session_access_token', data.access, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                maxAge: 60 * 60, // 60 minutes
-                path: '/'
-            });
-
+            setCookie('session_access_token', data.access, ONE_HOUR);
             return data.access;
         } else {
             await resetAuthCookies();
             return null;
         }
     } catch (error) {
-        console.log('Error refreshing token:', error);
+        console.error('Error refreshing token:', error);
         await resetAuthCookies();
         return null;
     }

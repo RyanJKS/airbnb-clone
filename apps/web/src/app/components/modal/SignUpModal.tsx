@@ -10,6 +10,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import apiService from "@/app/api/apiService";
 import { handleLogin } from "@/app/lib/actions";
+import { useAuth } from "@/app/contexts/AuthContext";
 
 
 interface IFormInputs {
@@ -34,6 +35,7 @@ const schema = yup.object().shape({
 const SignUpModal = () => {
     const router = useRouter();
     const signUpModal = useSignUpModal();
+    const { refreshUserId } = useAuth();
     const [errorMessage, setErrorMessage] = useState<string[]>([]);
 
     const { register, handleSubmit, formState: { errors } } = useForm<IFormInputs>({
@@ -45,7 +47,8 @@ const SignUpModal = () => {
             const response = await apiService.post('/api/auth/register/', data);
 
             if (response.access) {
-                handleLogin(response.user.pk, response.access, response.refresh)
+                await handleLogin(response.user.pk, response.access, response.refresh);
+                await refreshUserId();
                 signUpModal.close();
                 router.push('/');
             } else {

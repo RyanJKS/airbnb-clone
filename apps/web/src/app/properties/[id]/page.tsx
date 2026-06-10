@@ -4,6 +4,7 @@ import apiService from "@/app/api/apiService";
 import ReservationSidebar from "@/app/components/properties/ReservationSidebar";
 import Image from "next/image";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
 
 interface Host {
@@ -29,7 +30,9 @@ interface Property {
 }
 
 // Grab the uuid from the page in params
-const PropertyDetailPage = ({ params }: { params: { id: string } }) => {
+const PropertyDetailPage = () => {
+    const params = useParams<{ id: string }>();
+    const propertyId = typeof params.id === 'string' ? params.id : params.id?.[0];
     const [property, setProperty] = useState<Property | undefined>(undefined);
     const [loading, setLoading] = useState<boolean>(true);
     const [errors, setErrors] = useState<string>('');
@@ -38,7 +41,7 @@ const PropertyDetailPage = ({ params }: { params: { id: string } }) => {
     useEffect(() => {
         const fetchProperty = async () => {
             try {
-                const response = await apiService.get(`/api/properties/${params.id}/`);
+                const response = await apiService.get(`/api/properties/${propertyId}/`);
                 setProperty(response);
                 setLoading(false);
             } catch (error: any) {
@@ -47,10 +50,10 @@ const PropertyDetailPage = ({ params }: { params: { id: string } }) => {
             }
         };
 
-        if (params.id) {
+        if (propertyId) {
             fetchProperty();
         }
-    }, [params.id]);
+    }, [propertyId]);
 
     const handleNextImage = () => {
         if (property) {

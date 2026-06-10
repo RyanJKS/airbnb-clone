@@ -5,6 +5,7 @@ import HostContactButton from "@/app/components/HostContactButton";
 import PropertyList from "@/app/components/properties/PropertyList";
 import { useAuth } from "@/app/contexts/AuthContext";
 import Image from "next/image";
+import { useParams } from 'next/navigation';
 
 
 interface Host {
@@ -13,7 +14,9 @@ interface Host {
     profile_img_url: string
 }
 
-const HostDetailPage = ({ params }: { params: { id: string } }) => {
+const HostDetailPage = () => {
+    const params = useParams<{ id: string }>();
+    const hostId = typeof params.id === 'string' ? params.id : params.id?.[0];
 
     const [host, setHost] = useState<Host>({
         id: '',
@@ -24,8 +27,12 @@ const HostDetailPage = ({ params }: { params: { id: string } }) => {
 
     useEffect(() => {
         const fetchHost = async () => {
+            if (!hostId) {
+                return;
+            }
+
             try {
-                const hostData = await apiService.get(`/api/auth/${params.id}`);
+                const hostData = await apiService.get(`/api/auth/${hostId}/`);
                 setHost(hostData);
             } catch (error) {
                 console.error('Failed to fetch host:', error);
@@ -33,7 +40,7 @@ const HostDetailPage = ({ params }: { params: { id: string } }) => {
         };
 
         fetchHost();
-    }, [params.id]);
+    }, [hostId]);
 
     return (
         <main className="max-w-[1500px] mx-auto px-6 pb-6">
@@ -48,13 +55,13 @@ const HostDetailPage = ({ params }: { params: { id: string } }) => {
                             height={200}
                         />
                         <h1 className="mt-6 text-2xl"> {host.name}</h1>
-                        {userId != params.id && <HostContactButton userId={userId} hostId={params.id} />}
+                        {userId != hostId && hostId && <HostContactButton userId={userId} hostId={hostId} />}
                     </div>
                 </aside>
 
                 <div className="col-span-1 md:col-span-3 pl-0 md:pl-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <PropertyList host_id={params.id} />
+                        <PropertyList host_id={hostId} />
                     </div>
                 </div>
             </div>
