@@ -1,0 +1,21 @@
+{
+  "name": "airbnb-clone",
+  "private": true,
+  "packageManager": "bun@1.3.11",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "check": "turbo run check",
+    "dev:web": "bun --filter @airbnb-clone/web dev",
+    "dev:api": "bun --filter @airbnb-clone/api dev",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down -v"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.4"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@airbnb-clone/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "python manage.py runserver 0.0.0.0:8000",
+    "build": "python -m compileall config chat property useraccount manage.py",
+    "check": "python manage.py check",
+    "migrate": "python manage.py migrate",
+    "makemigrations": "python manage.py makemigrations",
+    "test": "python manage.py test"
+  }
+}

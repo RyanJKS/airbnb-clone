@@ -1,0 +1,15 @@
+.git
+.gitignore
+.turbo
+node_modules
+**/node_modules
+.next
+**/.next
+dist
+build
+coverage
+*.log
+__pycache__
+**/__pycache__
+*.pyc
+.DS_Store

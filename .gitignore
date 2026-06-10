@@ -1,34 +1,36 @@
+# Dependencies
+node_modules/
+
+# Bun / Turborepo
+.turbo/
+**/.turbo/
+
 # Python
 *.pyc
 __pycache__/
-db.sqlite3
+**/__pycache__/
+.venv/
+venv/
 
 # Django
-*.log
-*.pot
-*.pyc
-__pycache__/
-local_settings.py
 db.sqlite3
-media
-.env.dev
-
-# backend virtual env
-airbnb-clone-env/
-
-# Node.js
-node_modules/
-npm-debug.log
-yarn-error.log
-.env
+media/
 
 # Next.js
 .next/
 out/
+
+# Logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# macOS
+# Env files
+.env
+.env.*
+!.env.example
+
+# OS / editor
 .DS_Store
-
-# Visual Studio Code
 .vscode/

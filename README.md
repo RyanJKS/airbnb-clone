@@ -1,76 +1,111 @@
-# Airbnb Clone
+# Airbnb Clone Monorepo
 
-## Description
+This repository is now organized as a small monorepo with a clearer app layout:
 
-This project is a full-stack Airbnb clone built with Next.js for the frontend and Django for the backend. It demonstrates a simple rental listing application with user authentication, property listings, and booking functionalities.
+```text
+apps/
+  api/   Django + Django REST Framework + Channels
+  web/   Next.js + React + Bun
+```
 
-## Features
+## What Changed
 
-- User authentication and authorization
-- Property listings with details and images
-- Booking functionality
-- Responsive design
+- The old `frontend/` app now lives in `apps/web/`
+- The old nested `backend/backend/` app now lives in `apps/api/`
+- The Django config package was renamed from `backend` to `config`
+- Docker is now managed from the repo root with `docker-compose.yml`
+- Workspace scripts are now managed from the repo root with Bun + Turborepo
 
-## Tech Stack
+## Prerequisites
 
-### Frontend
+- Bun `1.3.11+`
+- Python `3.12+`
+- Docker and Docker Compose for containerized runs
 
-- [Next.js](https://nextjs.org/)
-- [React](https://reactjs.org/)
-- CSS Modules
+## Workspace Commands
 
-### Backend
+Install JavaScript workspace dependencies from the repo root:
 
-- [Django](https://www.djangoproject.com/)
-- [Django REST Framework](https://www.django-rest-framework.org/)
+```bash
+bun install
+```
 
-## Installation
+Run both apps together with Turborepo:
 
-### Prerequisites
+```bash
+bun dev
+```
 
-- Node.js
-- Python 3.x
-- pip (Python package installer)
-- virtualenv (Python virtual environment tool)
+Run a single app:
 
-### Setup
+```bash
+bun run dev:web
+bun run dev:api
+```
 
-1. **Clone the repository**
+Build the workspace:
 
-    ```bash
-    git clone https://github.com/yourusername/airbnb-clone.git
-    cd airbnb-clone
-    ```
+```bash
+bun run build
+```
 
-2. **Backend Setup**
+Lint the frontend:
 
-    ```bash
-    cd backend
-    virtualenv venv
-    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
-    pip install -r requirements.txt
-    python manage.py migrate
-    python manage.py runserver
-    ```
+```bash
+bun run lint
+```
 
-3. **Frontend Setup**
+Run the Django health check:
 
-    ```bash
-    cd frontend
-    npm install
-    npm run dev
-    ```
+```bash
+bun run check
+```
 
-4. **Access the application**
+## Local App Commands
 
-    - Frontend: `http://localhost:3000`
-    - Backend: `http://localhost:8000`
+### Web
 
-## Contributing
+```bash
+cd apps/web
+bun dev
+```
 
-Feel free to open an issue or submit a pull request if you have any improvements or suggestions.
+### API
 
-## License
+Create a virtual environment, install requirements, then run the server:
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+```bash
+cd apps/api
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python manage.py runserver
+```
 
+If you do not provide database environment variables, the API falls back to SQLite for easier local startup.
+
+## Docker
+
+Build and run the full stack from the repo root:
+
+```bash
+docker compose up --build
+```
+
+Services:
+
+- Web: `http://localhost:3000`
+- API: `http://localhost:8000`
+- Postgres: `localhost:5432`
+
+Stop and remove containers and volumes:
+
+```bash
+docker compose down -v
+```
+
+## Notes
+
+- The frontend now reads API and WebSocket endpoints through a small runtime config helper instead of hardcoded URLs.
+- The Next.js app is configured for standalone output to support a cleaner Docker build.
+- The Django settings now support either Postgres via environment variables or a local SQLite fallback.
